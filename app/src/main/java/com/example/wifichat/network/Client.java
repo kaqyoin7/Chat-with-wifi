@@ -1,6 +1,7 @@
 package com.example.wifichat.network;
 
-import util.NetMsgUtil;
+
+import com.example.wifichat.util.NetMsgUtil;
 
 import java.io.*;
 import java.net.Socket;
@@ -32,14 +33,11 @@ public class Client {
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-
-
             //FIXME: 连同发送自身ip端口
 
             // 连接日志
             printConnectLog(ipAddress, port);
             // 发送消息到服务器
-//            out.println("Hello from client!");
             out.println(NetMsgUtil.SIG_ONLINE);
 
             // 接收服务器的响应

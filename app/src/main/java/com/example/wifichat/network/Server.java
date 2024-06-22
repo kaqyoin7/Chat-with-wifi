@@ -1,6 +1,7 @@
 package com.example.wifichat.network;
 
-import util.NetMsgUtil;
+
+import com.example.wifichat.util.NetMsgUtil;
 
 import java.io.*;
 import java.net.ServerSocket;
