@@ -1,8 +1,11 @@
 package com.example.wifichat.multicast;
 
+import com.example.wifichat.util.GeneralUtil;
+
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -18,7 +21,10 @@ public class MulticastReceiver {
     private static int PORT = 5000;
     private Logger logger = Logger.getLogger("MulticastReceiver");
 
-    public void receiveMulticastMessage() {
+    /**
+     * 接收多播消息，返回多播源ip-port-isOnline
+     */
+    public Map<String,String> receiveMulticastMessage() {
         MulticastSocket socket = null;
 
         try {
@@ -39,13 +45,18 @@ public class MulticastReceiver {
                 socket.receive(packet);
                 // 将数据包内容转换为字符串
                 String message = new String(packet.getData(), 0, packet.getLength());
+
+                //ip-port-isOnline
+                Map<String,String> msgParsed = GeneralUtil.parseMessage(message);
                 // 打印接收到的消息
                 System.out.println("Received: " + message);
+                return msgParsed;
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();  // 打印异常堆栈信息
+            return null;
         } finally {
             if (socket != null) {
                 try {
