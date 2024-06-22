@@ -1,6 +1,4 @@
-package com.example.wifichat.util;
-
-
+package com.example.wifichat.thread;
 
 import com.example.wifichat.multicast.MulticastReceiver;
 import com.example.wifichat.multicast.MulticastSender;
