@@ -2,7 +2,7 @@ package com.example.wifichat.thread;
 
 import com.example.wifichat.multicast.MulticastReceiver;
 import com.example.wifichat.multicast.MulticastSender;
-import com.example.wifichat.util.NetMsgUtil;
+import com.example.wifichat.consts.NetMessageUtil;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -55,16 +55,16 @@ public class MulticastThreadPool {
     }
 
     private static void handleOnAndOffLine(Map<String,String> message) {
-        String ip = message.get(NetMsgUtil.IP);
-        int port = Integer.parseInt(message.get(NetMsgUtil.PORT));
+        String ip = message.get(NetMessageUtil.IP);
+        int port = Integer.parseInt(message.get(NetMessageUtil.PORT));
 
-        if (message.get("IS_ONLINE").equals(NetMsgUtil.SIG_ONLINE)) {
+        if (message.get("IS_ONLINE").equals(NetMessageUtil.SIG_ONLINE)) {
 
             SocketThread.startClient(ip,port);
             System.out.println("收到上线通知");
 
 
-        } else if (message.get("IS_ONLINE").equals(NetMsgUtil.SIG_OFFLINE)) {
+        } else if (message.get("IS_ONLINE").equals(NetMessageUtil.SIG_OFFLINE)) {
 
             //FIXME: 处理下线通知
 

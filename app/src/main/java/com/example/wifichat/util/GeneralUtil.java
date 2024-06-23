@@ -1,5 +1,7 @@
 package com.example.wifichat.util;
 
+import com.example.wifichat.consts.NetMessageUtil;
+
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.NetworkInterface;
@@ -44,7 +46,7 @@ public class GeneralUtil {
         return null;
     }
 
-    // 获取一个可用的本地端口
+    // 获取可用的本地端口
     public static int getAvailablePort() {
         try (MulticastSocket socket = new MulticastSocket(0)) {
             return socket.getLocalPort();
@@ -67,9 +69,9 @@ public class GeneralUtil {
         if (parts.length == 3) {
             // 创建Map并将字段存入Map
             Map<String, String> map = new HashMap<>();
-            map.put(NetMsgUtil.IP, parts[0]);
-            map.put(NetMsgUtil.PORT, parts[1]);
-            map.put(NetMsgUtil.IS_ONLINE, parts[2]);
+            map.put(NetMessageUtil.IP, parts[0]);
+            map.put(NetMessageUtil.PORT, parts[1]);
+            map.put(NetMessageUtil.IS_ONLINE, parts[2]);
 
             // 打印Map内容
             map.forEach((key, value) -> System.out.println(key + ": " + value));

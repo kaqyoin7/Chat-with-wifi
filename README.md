@@ -28,11 +28,17 @@ implementation 'com.google.firebase:firebase-database'
 #### 存储结构
 
 ```
-└─  root
-​     └─chatroom_test(**root_chatroom**)
-   				└─ key(**root_msg**)
-  		 			└─ Msg
-​		   			└─Name 
+└─root
+​   └─ users
+   	|   └─ userId
+  	| 		└─ name
+	|   	└─ profilePicUrl
+	└─ friendships	
+            └─ userId
+             	 └─ userId(friend)
+               			└─ secretkey
+               				  └─ msg
+                              └─ name
 ```
 
 
@@ -45,15 +51,24 @@ eg：
 com
 └─example
     └─wifichat
-        │  ChatRoom.java
-        │  MainActivity.java
+        ├─ ChatRoom.java
+        ├─ MainActivity.java
         │
-        ├─multicast
-        │      MulticastReceiver.java
-        │      MulticastSender.java
+        ├─ multicast
+        │   ├─ MulticastReceiver.java
+        │   ├─ MulticastSender.java
         │
-        └─util
-                MulticastThreadPool.java
+        ├─ network
+        │   ├─ Client.java
+        │   ├─ Server.java
+        │
+        ├─ thread
+        │   ├─ MulticastThreadPool.java
+        │   ├─ SocketThread.java
+        │
+        └─ util
+            ├─ GeneralUtil.java
+            └─ NetMsgUtil.java
 ```
 
 
@@ -67,5 +82,5 @@ Gradle Version: 8.0
 
 #### 作者  
 
-:leaves: kaquoin@163.com
+🍃 kaquoin#163.com (# -> @)
 

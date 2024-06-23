@@ -1,7 +1,7 @@
 package com.example.wifichat.network;
 
 
-import com.example.wifichat.util.NetMsgUtil;
+import com.example.wifichat.consts.NetMessageUtil;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -63,7 +63,7 @@ public class Server {
                 // 读取客户端发送的消息
                 String clientMessage = in.readLine();
 
-                if (clientMessage.equals(NetMsgUtil.SIG_ONLINE)) {
+                if (clientMessage.equals(NetMessageUtil.SIG_ONLINE)) {
                     logger.info("Received online Message");
                     //FIXME: 更新用户状态，使用TOAST通知xxx上线，同时设置UI为在线状态
                 }

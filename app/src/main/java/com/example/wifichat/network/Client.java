@@ -1,7 +1,7 @@
 package com.example.wifichat.network;
 
 
-import com.example.wifichat.util.NetMsgUtil;
+import com.example.wifichat.consts.NetMessageUtil;
 
 import java.io.*;
 import java.net.Socket;
@@ -38,7 +38,7 @@ public class Client {
             // 连接日志
             printConnectLog(ipAddress, port);
             // 发送消息到服务器
-            out.println(NetMsgUtil.SIG_ONLINE);
+            out.println(NetMessageUtil.SIG_ONLINE);
 
             // 接收服务器的响应
             String response = in.readLine();
