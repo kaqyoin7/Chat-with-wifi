@@ -36,9 +36,9 @@ public class Client {
             //FIXME: 连同发送自身ip端口
 
             // 连接日志
-            printConnectLog(ipAddress, port);
+            printConnectLog();
             // 发送消息到服务器
-            out.println(NetMessageUtil.SIG_ONLINE);
+            out.println(socket.getLocalSocketAddress()+" is "+NetMessageUtil.SIG_ONLINE);
 
             // 接收服务器的响应
             String response = in.readLine();
@@ -52,9 +52,10 @@ public class Client {
         }
     }
 
-    private void printConnectLog(String ipAddress, int port){
+    private void printConnectLog(){
+//        logger.info("client connect on :" + socket.getLocalAddress() + ":" + socket.getLocalPort());
+//        logger.info("client connect to serve socket:" + ipAddress + ":" + port);
+        logger.info("client connect to serve socket:" + socket.getInetAddress() + ":" + socket.getPort());
 
-        logger.info("client connect on :" + socket.getLocalAddress() + ":" + socket.getLocalPort());
-        logger.info("client connect to serve socket:" + ipAddress + ":" + port);
     }
 }

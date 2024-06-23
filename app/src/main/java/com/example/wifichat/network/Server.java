@@ -1,7 +1,7 @@
 package com.example.wifichat.network;
 
-
 import com.example.wifichat.consts.NetMessageUtil;
+import com.example.wifichat.util.GeneralUtil;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -26,14 +26,15 @@ public class Server {
         try {
             //PORT
             serverSocket = new ServerSocket(port);
-            logger.info("Server started on port " + port);
+            logger.info("Server started on  " + serverSocket.getLocalSocketAddress());
 
             while (true) {
                 //TODO: 阻塞，等待客户端连接
+                // 获取向server发起连接的clientSocket
                 Socket clientSocket = serverSocket.accept();
                 logger.info("Accepted connection from " + clientSocket.getInetAddress()+":"+clientSocket.getPort());
 
-                // 启动新线程处理客户端请求
+                // FIXME: 启动新线程处理客户端请求
                 ClientHandler clientHandler = new ClientHandler(clientSocket);
                 clientHandler.start();
             }
@@ -63,9 +64,11 @@ public class Server {
                 // 读取客户端发送的消息
                 String clientMessage = in.readLine();
 
-                if (clientMessage.equals(NetMessageUtil.SIG_ONLINE)) {
+                if (GeneralUtil.getIdentifier(clientMessage).equals(NetMessageUtil.SIG_ONLINE)) {
                     logger.info("Received online Message");
-                    //FIXME: 更新用户状态，使用TOAST通知xxx上线，同时设置UI为在线状态
+                    out.println("Now I know you are online!");
+
+                    // FIXME: 更新用户状态，使用TOAST通知xxx上线，同时设置UI为在线状态
                 }
 
                 System.out.println("Received from client: " + clientMessage);

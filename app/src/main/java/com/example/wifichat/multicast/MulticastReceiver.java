@@ -49,7 +49,7 @@ public class MulticastReceiver {
                 //ip-port-isOnline
                 Map<String,String> msgParsed = GeneralUtil.parseMessage(message);
                 // 打印接收到的消息
-                System.out.println("Received: " + message);
+                System.out.println("Received from multicast: " + message);
                 return msgParsed;
             }
 
