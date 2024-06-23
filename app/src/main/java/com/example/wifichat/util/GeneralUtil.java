@@ -46,7 +46,7 @@ public class GeneralUtil {
         return null;
     }
 
-    // 获取可用的本地端口
+    // 获取一个可用的本地端口
     public static int getAvailablePort() {
         try (MulticastSocket socket = new MulticastSocket(0)) {
             return socket.getLocalPort();
@@ -57,13 +57,8 @@ public class GeneralUtil {
     }
 
     public static Map<String,String> parseMessage(String message){
-        System.out.println("Message: "+message);
         // 分割字符串
         String[] parts = message.split("-");
-
-        for (String part : parts) {
-            System.out.println("part: "+part);
-        }
 
         // 确保分割后的数组有三个部分
         if (parts.length == 3) {
@@ -73,12 +68,21 @@ public class GeneralUtil {
             map.put(NetMessageUtil.PORT, parts[1]);
             map.put(NetMessageUtil.IS_ONLINE, parts[2]);
 
-            // 打印Map内容
-            map.forEach((key, value) -> System.out.println(key + ": " + value));
             return map;
         } else {
             System.out.println("Message format is incorrect.");
             return null;
         }
+    }
+
+    public static String getIdentifier(String input) {
+        if (input == null || input.isEmpty()) {
+            return "";
+        }
+        int lastSpaceIndex = input.lastIndexOf(' ');
+        if (lastSpaceIndex == -1) {
+            return input;
+        }
+        return input.substring(lastSpaceIndex + 1);
     }
 }

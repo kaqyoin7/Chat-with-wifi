@@ -27,7 +27,8 @@ public class SocketThread {
     public static void startClient(String ipAddress, int port) {
         new Thread(() -> {
             Client client = new Client();
-            client.connectToServer(ipAddress, port);
+            client.connectToServer(ipAddress, 8088); // 替换为你的服务器IP和端口号
+
         }).start();
 
     }

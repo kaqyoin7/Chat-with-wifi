@@ -38,7 +38,7 @@ public class MulticastSender {
             DatagramPacket packet = new DatagramPacket(msg, msg.length, group,PORT);
             //发送数据包到多播组
             socket.send(packet);
-            logger.info("message send success");
+//            logger.info("message send success");
 
             //关闭Socket
             socket.close();

@@ -26,7 +26,9 @@ public class MulticastThreadPool {
             @Override
             public void run() {
                 Map<String,String> message = receiver.receiveMulticastMessage();
-                //FIXME: 在此处向组播源请求连接
+//                System.out.println(message);
+                //FIXME: 考虑在此更新组播源上线状态
+                //向组播源发送在线通知
                 handleOnAndOffLine(message);
             }
         });
@@ -56,15 +58,12 @@ public class MulticastThreadPool {
 
     private static void handleOnAndOffLine(Map<String,String> message) {
         String ip = message.get(NetMessageUtil.IP);
-        int port = Integer.parseInt(message.get(NetMessageUtil.PORT));
 
-        if (message.get("IS_ONLINE").equals(NetMessageUtil.SIG_ONLINE)) {
-
-            SocketThread.startClient(ip,port);
+        if (message.get(NetMessageUtil.IS_ONLINE).equals(NetMessageUtil.SIG_ONLINE)) {
+            SocketThread.startClient(ip,NetMessageUtil.SERVER_PORT);
             System.out.println("收到上线通知");
 
-
-        } else if (message.get("IS_ONLINE").equals(NetMessageUtil.SIG_OFFLINE)) {
+        } else if (message.get(NetMessageUtil.IS_ONLINE).equals(NetMessageUtil.SIG_OFFLINE)) {
 
             //FIXME: 处理下线通知
 
