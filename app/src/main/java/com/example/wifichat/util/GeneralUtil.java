@@ -1,7 +1,15 @@
 package com.example.wifichat.util;
 
+import android.content.Context;
+
 import com.example.wifichat.consts.NetMessageUtil;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.NetworkInterface;
@@ -85,4 +93,7 @@ public class GeneralUtil {
         }
         return input.substring(lastSpaceIndex + 1);
     }
+
+
+
 }

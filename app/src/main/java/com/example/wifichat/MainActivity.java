@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,6 +25,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Logger;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -156,4 +163,71 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
+    private void FileOperation(String fileName,String message){
+        File internalStorageDir = getFilesDir();
+        String path = internalStorageDir.getAbsolutePath();
+        System.out.println("Internal Storage Path: " + path);
+
+        // 创建并写入文件
+        writeFileInternalStorage(fileName, message);
+
+        String fileContent = readFileInternalStorage(fileName);
+        if (fileContent != null) {
+            System.out.println("File Content: " + fileContent);
+        }
+
+    }
+
+    private void writeFileInternalStorage(String fileName, String content) {
+        FileOutputStream fos = null;
+        String writeMsg = content+"\n";
+        try {
+            fos = openFileOutput(fileName, Context.MODE_APPEND);
+            fos.write(writeMsg.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    private String readFileInternalStorage(String fileName) {
+        FileInputStream fis = null;
+        try {
+            fis = openFileInput(fileName);
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            return sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private boolean deleteFileInternalStorage(String fileName) {
+        return deleteFile(fileName);
+    }
+
 }
