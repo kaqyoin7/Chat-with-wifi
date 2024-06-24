@@ -17,6 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Wifichat"
         tools:targetApi="31">
+        <activity android:name=".ChatRoom"></activity>
         <activity
             android:name=".MainActivity"
             android:exported="true">

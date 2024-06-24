@@ -64,11 +64,17 @@ public class Server {
                 // 读取客户端发送的消息
                 String clientMessage = in.readLine();
 
-                if (GeneralUtil.getIdentifier(clientMessage).equals(NetMessageUtil.SIG_ONLINE)) {
-                    logger.info("Received online Message");
-                    out.println("Now I know you are online!");
+                //Keep thread
+                while (clientMessage != null) {
+                    System.out.println("Received from client: " + clientMessage);
+                    if (GeneralUtil.getIdentifier(clientMessage).equals(NetMessageUtil.SIG_ONLINE)) {
+                        logger.info("Received online Message");
+                        out.println("Now I know you are online!");
 
-                    // FIXME: 更新用户状态，使用TOAST通知xxx上线，同时设置UI为在线状态
+                        // FIXME: 更新用户状态，使用TOAST通知xxx上线，同时设置UI为在线状态
+                    }
+                    // 继续读取下一个消息
+                    clientMessage = in.readLine();
                 }
 
                 System.out.println("Received from client: " + clientMessage);
@@ -78,6 +84,7 @@ public class Server {
 
                 // 关闭连接
                 clientSocket.close();
+                logger.info("server close connection with " + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
             } catch (IOException e) {
                 e.printStackTrace();
             }
