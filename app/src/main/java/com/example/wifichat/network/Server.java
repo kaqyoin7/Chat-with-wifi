@@ -19,7 +19,7 @@ public class Server {
 
     private Logger logger = Logger.getLogger("Server");
     /**
-     * 启动服务器
+     * 启动服务器，等待client连接
      * @param port 服务器端口
      */
     public void startServer(int port) {
@@ -45,6 +45,9 @@ public class Server {
         }
     }
 
+    /**
+     * 子线程处理客户端请求
+     */
     private static class ClientHandler extends Thread {
         private Socket clientSocket;
         private PrintWriter out;
@@ -61,7 +64,7 @@ public class Server {
                 out = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream()), true);
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-                // 读取客户端发送的消息
+                // 读取客户端发送的消息，阻塞
                 String clientMessage = in.readLine();
 
                 //Keep thread
@@ -77,16 +80,23 @@ public class Server {
                     clientMessage = in.readLine();
                 }
 
-                System.out.println("Received from client: " + clientMessage);
 
-                // 发送响应给客户端
-                out.println("Now I know you are online!");
-
-                // 关闭连接
-                clientSocket.close();
-                logger.info("server close connection with " + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
             } catch (IOException e) {
-                e.printStackTrace();
+                //处理客户端断开连接异常
+                //FIXME: 尝试在这里处理下线逻辑
+                if (e instanceof java.net.SocketException && "Connection reset".equals(e.getMessage())) {
+                    logger.warning("Client connection reset: " + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
+                } else {
+                    e.printStackTrace();
+                }
+            } finally {
+                try {
+                    if (in != null) in.close();
+                    if (out != null) out.close();
+                    if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

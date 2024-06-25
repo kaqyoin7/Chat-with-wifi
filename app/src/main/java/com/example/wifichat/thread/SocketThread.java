@@ -4,6 +4,10 @@ package com.example.wifichat.thread;
 import com.example.wifichat.network.Client;
 import com.example.wifichat.network.Server;
 
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.Socket;
+
 /**
  * @Author kaqyoin
  * @program: Multicast
@@ -12,6 +16,7 @@ import com.example.wifichat.network.Server;
  */
 public class SocketThread {
 
+    private static Socket socket;
     public static void startServer(int port) {
         new Thread(() -> {
             Server server = new Server();
@@ -27,8 +32,27 @@ public class SocketThread {
     public static void startClient(String ipAddress, int port) {
         new Thread(() -> {
             Client client = new Client();
-            client.connectToServer(ipAddress, 8088); // 替换为你的服务器IP和端口号
+//            client.connectToServer(ipAddress, 8088);
+            socket = client.connectToServer(ipAddress, port);
+            if(socket == null) {
+                System.err.println("Failed to connect to server at " + ipAddress + ":" + port);
+            }
+        }).start();
+    }
 
+    public static void sendToServer(String msg){
+        new Thread(() -> {
+            if (socket == null || socket.isClosed()) {
+                System.err.println("Socket is not connected or already closed.");
+                return;
+            }
+            try {
+                 PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+                out.println(socket.getLocalSocketAddress()+" : "+ msg);
+                System.out.println("send msg to server: "+ socket.getInetAddress() + ":" + socket.getPort() + " " +msg);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }).start();
 
     }

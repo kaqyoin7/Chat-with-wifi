@@ -21,10 +21,16 @@ public class MulticastReceiver {
     private static int PORT = 5000;
     private Logger logger = Logger.getLogger("MulticastReceiver");
 
+    //回调接口
+    public interface MessageCallback {
+        void onMessageReceived(Map<String, String> message);
+    }
+
+
     /**
      * 接收多播消息，返回多播源ip-port-isOnline
      */
-    public Map<String,String> receiveMulticastMessage() {
+    public void receiveMulticastMessage(MessageCallback callback) {
         MulticastSocket socket = null;
 
         try {
@@ -41,22 +47,19 @@ public class MulticastReceiver {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
             while (true) {
-                // 接收数据包
+                // 接收数据包，阻塞
                 socket.receive(packet);
                 // 将数据包内容转换为字符串
                 String message = new String(packet.getData(), 0, packet.getLength());
 
-                //ip-port-isOnline
+                //msgParsed: ip-port-isOnline
                 Map<String,String> msgParsed = GeneralUtil.parseMessage(message);
-                // 打印接收到的消息
-                System.out.println("Received from multicast: " + message);
-                return msgParsed;
+
+                //回调
+                callback.onMessageReceived(msgParsed);
             }
-
-
         } catch (Exception e) {
             e.printStackTrace();  // 打印异常堆栈信息
-            return null;
         } finally {
             if (socket != null) {
                 try {
