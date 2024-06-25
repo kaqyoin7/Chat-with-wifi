@@ -1,21 +1,15 @@
 package com.example.wifichat.util;
 
-import android.content.Context;
+import com.example.wifichat.constant.NetMessageUtil;
 
-import com.example.wifichat.consts.NetMessageUtil;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @Author kaqyoin
@@ -100,6 +94,23 @@ public class GeneralUtil {
         return input.substring(lastSpaceIndex + 1);
     }
 
+    //生成用户ID
+    public static String generateUserId() {
+        long lastTimestamp = 0L;
+        Lock lock = new ReentrantLock();
+        lock.lock();
+        try {
+            long currentTimestamp = System.currentTimeMillis();
+            // 如果当前时间戳与上次生成的时间戳相同，需要在时间戳后面加上一个随机数，保证唯一性
+            if (currentTimestamp == lastTimestamp) {
+                currentTimestamp += 1; // 这里可以根据具体需求进行调整
+            }
+            lastTimestamp = currentTimestamp;
+            return String.valueOf(currentTimestamp);
+        } finally {
+            lock.unlock();
+        }
+    }
 
 
 }

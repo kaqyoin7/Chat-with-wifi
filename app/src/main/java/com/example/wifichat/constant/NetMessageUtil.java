@@ -1,4 +1,4 @@
-package com.example.wifichat.consts;
+package com.example.wifichat.constant;
 
 /**
  * @Author kaqyoin
@@ -16,5 +16,9 @@ public class NetMessageUtil {
     public static final String IP = "ip";
     public static final String PORT = "port";
     public static final String IS_ONLINE = "isOnline";
+    //文件存储
+    public static final String USER_NAME = "user_name";
+    public static final String USER_ID = "user_id";
+    public static final String FRIEND_LIST = "friend_list";
 
 }

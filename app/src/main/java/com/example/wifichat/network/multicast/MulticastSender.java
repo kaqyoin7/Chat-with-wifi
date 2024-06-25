@@ -1,4 +1,4 @@
-package com.example.wifichat.multicast;
+package com.example.wifichat.network.multicast;
 
 import com.example.wifichat.util.GeneralUtil;
 
