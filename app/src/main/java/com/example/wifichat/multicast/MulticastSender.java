@@ -20,6 +20,7 @@ public class MulticastSender {
     // 多播端口
     private static final int PORT = 5000;
     private Logger logger = Logger.getLogger("MulticastSender");
+
     public void sendMulticastMessage(String message) {
         try {
             //获取多播组地址
@@ -33,7 +34,9 @@ public class MulticastSender {
                 logger.warning("Failed to get local IP address");
             }
 
-            String messageSocket = localIp + "-" + PORT+ "-" + message;
+            String messageSocket = localIp + "-" + socket.getLocalPort()+ "-" + message;
+
+            // 将消息转换为字节数组
             byte[] msg = messageSocket.getBytes();
             DatagramPacket packet = new DatagramPacket(msg, msg.length, group,PORT);
             //发送数据包到多播组

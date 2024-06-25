@@ -3,14 +3,18 @@ package com.example.wifichat.thread;
 import com.example.wifichat.multicast.MulticastReceiver;
 import com.example.wifichat.multicast.MulticastSender;
 import com.example.wifichat.consts.NetMessageUtil;
+import com.example.wifichat.util.GeneralUtil;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 public class MulticastThreadPool {
 
     private static ExecutorService executorService;
+
+    private static Logger logger = Logger.getLogger("MulticastThreadPool");
 
     // 初始化线程池
     public static void init() {
@@ -25,11 +29,26 @@ public class MulticastThreadPool {
         executorService.submit(new Runnable() {
             @Override
             public void run() {
-                Map<String,String> message = receiver.receiveMulticastMessage();
-//                System.out.println(message);
+                //TODO：回调过滤本地IP
+                receiver.receiveMulticastMessage(new MulticastReceiver.MessageCallback() {
+                    @Override
+                    public void onMessageReceived(Map<String, String> message) {
+
+                        //TODO：第二个判断条件为本地服务器启动地址
+
+                        if (message.get(NetMessageUtil.IP).equals(GeneralUtil.getLocalIpAddress())){
+                            logger.info("Received from self, ignore");
+                        }else {
+                            System.out.println("Received from multicast: " + message);
+                            handleOnAndOffLine(message);
+                        }
+                        //本地调试，线上环境需要使用上述IP过滤方案
+//                            System.out.println("Received from multicast: " + message);
+//                            handleOnAndOffLine(message);
+                    }
+                });
                 //FIXME: 考虑在此更新组播源上线状态
                 //向组播源发送在线通知
-                handleOnAndOffLine(message);
             }
         });
     }
@@ -60,13 +79,13 @@ public class MulticastThreadPool {
         String ip = message.get(NetMessageUtil.IP);
 
         if (message.get(NetMessageUtil.IS_ONLINE).equals(NetMessageUtil.SIG_ONLINE)) {
-            SocketThread.startClient(ip,NetMessageUtil.SERVER_PORT);
+
+            SocketThread.startClient(ip, NetMessageUtil.SERVER_PORT);
             System.out.println("收到上线通知");
 
         } else if (message.get(NetMessageUtil.IS_ONLINE).equals(NetMessageUtil.SIG_OFFLINE)) {
 
             //FIXME: 处理下线通知
-
             System.out.println("收到下线通知");
         }
     }

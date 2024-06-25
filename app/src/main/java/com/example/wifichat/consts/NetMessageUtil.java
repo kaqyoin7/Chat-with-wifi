@@ -9,7 +9,9 @@ package com.example.wifichat.consts;
 public class NetMessageUtil {
     //指定服务器固定统一启动端口号
     public static final int SERVER_PORT = 8088;
+    //上线标识符
     public static final String SIG_ONLINE = "online";
+    //下线标识符
     public static final String SIG_OFFLINE = "offline";
     public static final String IP = "ip";
     public static final String PORT = "port";

@@ -64,6 +64,12 @@ public class GeneralUtil {
         return -1;
     }
 
+
+    /**
+     * 消息格式：ip-port-msg_content
+     * @param message
+     * @return
+     */
     public static Map<String,String> parseMessage(String message){
         // 分割字符串
         String[] parts = message.split("-");
