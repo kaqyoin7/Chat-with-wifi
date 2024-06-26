@@ -1,21 +1,14 @@
 #  :speech_balloon: WifiChat  
 
-***:sparkles:持续更新中~***
-
-WifiChat 为一个基于`FireBase`与`MulticastSocket`实现的`Android` Wifi 局域网聊天App
-
-* FireBase：https://console.firebase.google.com/
-* MulticastSocket：https://developer.android.com/reference/java/net/MulticastSocket
 
 
-
-#### 上手指南
-
-​	 :exclamation: 项目使用 **FireBase** 实现持久化：
+​	 ***:sparkles:***  项目使用 **FireBase** 实现持久化：
 
 >  请确保在运行项目前您已注册服务并做好下列准备：[将 Firebase 添加到您的 Android 项目  | Firebase for Android (google.com)](https://firebase.google.com/docs/android/setup?hl=zh-cn#analytics-enabled)
 
-##### Dependency:
+
+
+##### 	<img src="https://i.gifer.com/ZAbi.gif" width="29" height="29" style="display:inline-block;" />Dependency:
 
 ```
 implementation platform('com.google.firebase:firebase-bom:33.1.0')
@@ -25,62 +18,99 @@ implementation 'com.google.firebase:firebase-database'
 
 
 
-#### 存储结构
+#### DS
 
 ```
-└─root
-​   └─ users
-   	|   └─ userId
-  	| 		└─ name
-	|   	└─ profilePicUrl
-	└─ friendships	
-            └─ userId
-             	 └─ userId(friend)
-               			└─ secretkey
-               				  └─ msg
-                              └─ name
+     online:
+        └─  root
+             └─chatroom_test(**root_chatroom**)
+                	└─ key(**root_msg**)
+                    	└─ Msg
+                    	└─Name 
+                    	
+​     local:
+        └─  user_id
+        └─  user_name
+        └─  friend_id1
+        └─  friend_id2
+        └─  .....
+        └─  friend_list
+                └─  friend_id1
+                        └─  {#user_name}:msg
+                        └─  ......
+                └─  friend_id1
+                        └─  ......
+                └─  ......
 ```
 
 
 
-#### 文件目录说明
-
-eg：
+### FS
 
 ```
 com
 └─example
     └─wifichat
-        ├─ ChatRoom.java
-        ├─ MainActivity.java
+        │  MainActivity.java
         │
-        ├─ multicast
-        │   ├─ MulticastReceiver.java
-        │   ├─ MulticastSender.java
+        ├─ adapter
+        │      └─ FriendsAdapter.java
+        │
+        ├─ api
+        │      └─ ChatRecordsApi.java
+        │      └─ FriendsApi.java
+        │      └─ UserApi.java
+        │
+        ├─ chatroom
+        │      └─ ChatRoomGroup.java
+        │      └─ ChatRoomPrivate.java
+        │
+        ├─ constant
+        │      └─ NetMessageUtil.java
+        │
+        ├─ model
+        │      └─ User.java
         │
         ├─ network
-        │   ├─ Client.java
-        │   ├─ Server.java
+        │  ├─ multicast
+        │  │      └─ MulticastReceiver.java
+        │  │      └─ MulticastSender.java
+        │  │
+        │  ├─ socket
+        │  │      └─ Client.java
+        │  │      └─ Server.java
+        │  │
+        │  └─ thread
+        │          └─ MulticastThreadPool.java
+        │          └─ SocketThread.java
         │
-        ├─ thread
-        │   ├─ MulticastThreadPool.java
-        │   ├─ SocketThread.java
+        ├─ observer
+        │      └─ FileChangeObserver.java
+        │      └─ UserViewModel.java
+        │
+        ├─ service
+        │  │  └─ LocalStorageService.java
+        │  │  └─ SocketMapChangeListener.java
+        │  │
+        │  └─ impl
+        │     └─ LocalStorageServiceImpl.java
         │
         └─ util
-            ├─ GeneralUtil.java
-            └─ NetMsgUtil.java
+                └─ ContextHolderUtil.java
+                └─ GeneralUtil.java
+
+
 ```
 
 
 
-##### Verison
+## Version Compatibility
 
-```
-Android Gradle Plugin Version: 8.1.1
-Gradle Version: 8.0
-```
+| Gradle Version | Plugin Version |
+| -------------- | -------------- |
+| >= 8.0         | >= 8.11        |
 
-#### 作者  
+
 
 🍃 kaquoin#163.com (# -> @)
 
