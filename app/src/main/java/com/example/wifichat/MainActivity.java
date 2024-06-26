@@ -3,10 +3,14 @@ package com.example.wifichat;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -18,26 +22,38 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.wifichat.adapter.FriendsAdapter;
+import com.example.wifichat.api.FriendsApi;
+import com.example.wifichat.api.UserApi;
+import com.example.wifichat.chatroom.ChatRoomGroup;
+import com.example.wifichat.constant.NetMessageUtil;
+import com.example.wifichat.model.User;
+import com.example.wifichat.observer.UserViewModel;
+import com.example.wifichat.network.multicast.MulticastReceiver;
+import com.example.wifichat.network.multicast.MulticastSender;
+import com.example.wifichat.network.thread.MulticastThreadPool;
+import com.example.wifichat.network.thread.SocketThread;
+import com.example.wifichat.service.LocalStorageService;
+import com.example.wifichat.service.SocketMapChangeListener;
+import com.example.wifichat.service.impl.LocalStorageServiceImpl;
+import com.example.wifichat.util.ContextHolderUtil;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Logger;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Scanner;
 import java.util.Set;
+
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,21 +63,60 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> arrayAdapter;
     private ArrayList<String> list_of_rooms = new ArrayList<>();
     private DatabaseReference root = FirebaseDatabase.getInstance().getReference().getRoot();
+    private RecyclerView recyclerView;
+    private ArrayList<User> usersData;
+    private FriendsAdapter friendsAdapter;
+    private UserViewModel userViewModel;
+    private static SocketMapChangeListener socketMapChangeListener;
     //用户名
     private String name;
+    private UserApi userApi;
+    private LocalStorageService localStorageService;
+    private FriendsApi friendsApi;
+    public static Map<String, Socket> socketMap = new HashMap<>();
     private static final String TAG = "MainActivity";
-    public MainActivity() {
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setSupportActionBar(findViewById(R.id.toolbar));
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
+
+
+        userApi = new UserApi(this);
+        localStorageService = LocalStorageServiceImpl.getInstance(this);
+        friendsApi = new FriendsApi(this);
+        ContextHolderUtil.init(this);
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 1));
+        usersData = new ArrayList<>();
+        friendsAdapter = new FriendsAdapter(this, usersData);
+        recyclerView.setAdapter(friendsAdapter);
+
+        //监听数据
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        userViewModel.getUsers().observe(this, new Observer<ArrayList<User>>() {
+            @Override
+            public void onChanged(ArrayList<User> users) {
+                friendsAdapter.setUsersData(users);
+            }
+        });
+
+        setSocketMapChangeListener(new SocketMapChangeListener() {
+            @Override
+            public void onSocketMapChanged(Map<String, Socket> socketMap) {
+                System.out.println("socketMap 发生变化：" + socketMap);
+
+                //FIXME 看看这样做行不行？？？？？？？？？？？？？？？？能不能触发user的监听重新更新recyclerView
+                // 比较局限的是如果可行则只有上线可以更新，下线无法更新
+                initializeData();
+            }
+        });
+
+        //FIXME 监听数据
+        initializeData();
+
 
         add_room = (Button) findViewById(R.id.btn_add_room);
         room_name = (EditText) findViewById(R.id.room_name_edittext);
@@ -70,7 +125,65 @@ public class MainActivity extends AppCompatActivity {
         arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,list_of_rooms);
         listView.setAdapter(arrayAdapter);
 
-        requestUserName();
+        if (localStorageService.readFileInternalStorage(NetMessageUtil.USER_NAME) == null){
+            requestUserName();
+        }
+        else {
+            name = localStorageService.readFileInternalStorage(NetMessageUtil.USER_NAME);
+        }
+
+        groupChatEventHandler();
+
+    }
+
+    // 注册监听器方法
+    public static void setSocketMapChangeListener(SocketMapChangeListener l) {
+        socketMapChangeListener = l;
+    }
+
+    public static void removeSocketMapChangeListener(String userId) {
+        socketMap.remove(userId);
+        if (socketMapChangeListener != null) {
+            socketMapChangeListener.onSocketMapChanged(socketMap);
+        }
+    }
+
+    public static void addToSocketMap(String userId, Socket socket) {
+        socketMap.put(userId, socket);
+        if (socketMapChangeListener != null) {
+            socketMapChangeListener.onSocketMapChanged(socketMap);
+        }
+    }
+
+    //设备上线模拟
+    private static void onLineSimulation() {
+        //submitReceiverTask中要处理connectServer逻辑，先启动server
+        //固定server启动端口
+        SocketThread.startServer(NetMessageUtil.SERVER_PORT);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        MulticastThreadPool.submitReceiverTask(new MulticastReceiver());
+
+        //上线通知
+        MulticastThreadPool.submitSenderTask(new MulticastSender(), NetMessageUtil.SIG_ONLINE);
+        Scanner scanner = new Scanner(System.in);
+
+
+        String msg = "hello Multicast!";
+        while (msg.equals("exit") == false){
+            msg = scanner.nextLine();
+            System.out.println("msg: "+msg);
+//            SocketThread.startClient(SERVER_IP_ADDRESS, NetMessageUtil.SERVER_PORT);
+
+//            SocketThread.sendToServer(msg);
+        }
+    }
+
+    private void groupChatEventHandler() {
 
         //TODO：添加聊天室
         add_room.setOnClickListener(new View.OnClickListener() {
@@ -102,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
                 arrayAdapter.notifyDataSetChanged();
 
-                Log.i(TAG,"DataChanged!!!");
+//                Log.i(TAG,"DataChanged!!!");
             }
 
             @Override
@@ -114,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(MainActivity.this,ChatRoom.class);
+                Intent intent = new Intent(MainActivity.this, ChatRoomGroup.class);
                 intent.putExtra("room_name",((TextView)view).getText().toString());
                 intent.putExtra("user_name",name);
                 startActivity(intent);
@@ -122,9 +235,27 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * 输入用户名，考虑在此处分配ID
-     */
+
+    private void initializeData() {
+       List<Map<String,String>> friendsInfo = friendsApi.getFriendsIdList();
+        TypedArray userImageResources = getResources().obtainTypedArray(R.array.user_images);
+       usersData.clear();
+
+        for (Map<String, String> friendInfo : friendsInfo) {
+            User user = new User(friendInfo.get(NetMessageUtil.USER_ID)
+                    ,friendInfo.get(NetMessageUtil.USER_NAME)
+                    , userImageResources.getResourceId((int) (Math.random() * userImageResources.length()), -1)
+                    ,NetMessageUtil.SIG_ONLINE);
+
+            usersData.add(user);
+        }
+        userViewModel.setUsers(usersData);
+
+    }
+
+        /**
+         * 输入用户名，考虑在此处分配ID
+         */
     public void requestUserName(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Enter name:");
@@ -136,6 +267,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 name = input_field.getText().toString();
+                //本地存储用户数据
+                userApi.getUser(name);
             }
         });
 
@@ -165,68 +298,5 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void FileOperation(String fileName,String message){
-        File internalStorageDir = getFilesDir();
-        String path = internalStorageDir.getAbsolutePath();
-        System.out.println("Internal Storage Path: " + path);
-
-        // 创建并写入文件
-        writeFileInternalStorage(fileName, message);
-
-        String fileContent = readFileInternalStorage(fileName);
-        if (fileContent != null) {
-            System.out.println("File Content: " + fileContent);
-        }
-    }
-
-    private void writeFileInternalStorage(String fileName, String content) {
-        FileOutputStream fos = null;
-        String writeMsg = content+"\n";
-        try {
-            fos = openFileOutput(fileName, Context.MODE_APPEND);
-            fos.write(writeMsg.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-
-    private String readFileInternalStorage(String fileName) {
-        FileInputStream fis = null;
-        try {
-            fis = openFileInput(fileName);
-            InputStreamReader isr = new InputStreamReader(fis);
-            BufferedReader br = new BufferedReader(isr);
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-            return sb.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    private boolean deleteFileInternalStorage(String fileName) {
-        return deleteFile(fileName);
-    }
 
 }

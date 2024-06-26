@@ -20,5 +20,6 @@ public class NetMessageUtil {
     public static final String USER_NAME = "user_name";
     public static final String USER_ID = "user_id";
     public static final String FRIEND_LIST = "friend_list";
+    public static final String PIC_URL = "pic_url";
 
 }

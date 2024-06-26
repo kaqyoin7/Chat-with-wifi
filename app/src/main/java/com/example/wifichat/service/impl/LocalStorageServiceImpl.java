@@ -5,6 +5,7 @@ import android.content.Context;
 import com.example.wifichat.service.LocalStorageService;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -67,6 +68,11 @@ public class LocalStorageServiceImpl implements LocalStorageService {
 
     @Override
     public String readFileInternalStorage(String fileName) {
+        File file = new File(context.getFilesDir(), fileName);
+        if (!file.exists()) {
+            return null;
+        }
+
         FileInputStream fis = null;
         try {
             fis = context.openFileInput(fileName);
@@ -95,5 +101,12 @@ public class LocalStorageServiceImpl implements LocalStorageService {
     @Override
     public boolean deleteFileInternalStorage(String fileName) {
         return context.deleteFile(fileName);
+    }
+
+    @Override
+    public String getFilesPath() {
+        File internalStorageDir = context.getFilesDir();
+        String path = internalStorageDir.getAbsolutePath();
+        return null;
     }
 }

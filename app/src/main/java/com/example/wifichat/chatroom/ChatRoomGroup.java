@@ -1,4 +1,4 @@
-package com.example.wifichat;
+package com.example.wifichat.chatroom;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.wifichat.R;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,7 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class ChatRoom extends AppCompatActivity {
+public class ChatRoomGroup extends AppCompatActivity {
 
     private Button btn_send_msg;
     private EditText input_msg;
@@ -34,16 +35,16 @@ public class ChatRoom extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_room);
-        setSupportActionBar(findViewById(R.id.toolbar_chat_room));
+        setContentView(R.layout.activity_chat_room_group);
+        setSupportActionBar(findViewById(R.id.toolbar_chat_room_group));
         if (getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
 
-        btn_send_msg = findViewById(R.id.btn_send);
-        input_msg = findViewById(R.id.msg_input);
-        chat_conversation = findViewById(R.id.textView);
+        btn_send_msg = findViewById(R.id.btn_send_group);
+        input_msg = findViewById(R.id.msg_input_group);
+        chat_conversation = findViewById(R.id.textView_group);
 
         user_name = getIntent().getExtras().get("user_name").toString();
         room_name = getIntent().getExtras().get("room_name").toString();
@@ -58,7 +59,6 @@ public class ChatRoom extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Map<String,Object> map = new HashMap<>();
-                //TODO: 生成新子节点，生成返回密钥 -> 时间戳 -> 考虑依靠时间戳返回有序聊天记录
                 temp_key = root_chatroom.push().getKey();
                 root_chatroom.updateChildren(map);
                 //消息数据
@@ -69,6 +69,8 @@ public class ChatRoom extends AppCompatActivity {
                 mapMsg.put("msg",input_msg.getText().toString());
 
                 root_msg.updateChildren(mapMsg);
+                input_msg.setText("");
+
             }
         });
 
