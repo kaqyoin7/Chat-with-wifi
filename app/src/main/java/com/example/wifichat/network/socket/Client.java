@@ -1,7 +1,7 @@
-package com.example.wifichat.network;
+package com.example.wifichat.network.socket;
 
 
-import com.example.wifichat.consts.NetMessageUtil;
+import com.example.wifichat.constant.NetMessageUtil;
 
 import java.io.*;
 import java.net.Socket;
@@ -25,7 +25,7 @@ public class Client {
      * @param ipAddress 服务器IP地址
      * @param port 服务器端口
      */
-    public void connectToServer(String ipAddress, int port) {
+    public Socket connectToServer(String ipAddress, int port) {
         try {
             // IP、PORT
             socket = new Socket(ipAddress, port);
@@ -33,28 +33,24 @@ public class Client {
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            //FIXME: 连同发送自身ip端口
-
             // 连接日志
-            printConnectLog(ipAddress, port);
+            printConnectLog();
             // 发送消息到服务器
-            out.println(NetMessageUtil.SIG_ONLINE);
+            out.println(socket.getLocalSocketAddress()+" is "+ NetMessageUtil.SIG_ONLINE);
 
             // 接收服务器的响应
             String response = in.readLine();
             System.out.println("Server response: " + response);
 
-            // 关闭连接
-            socket.close();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return socket;
     }
 
-    private void printConnectLog(String ipAddress, int port){
-
+    private void printConnectLog(){
         logger.info("client connect on :" + socket.getLocalAddress() + ":" + socket.getLocalPort());
-        logger.info("client connect to serve socket:" + ipAddress + ":" + port);
+        logger.info("client connect to serve socket:" + socket.getInetAddress() + ":" + socket.getPort());
+
     }
 }
