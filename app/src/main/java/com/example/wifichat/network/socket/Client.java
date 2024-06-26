@@ -1,7 +1,7 @@
-package com.example.wifichat.network;
+package com.example.wifichat.network.socket;
 
 
-import com.example.wifichat.consts.NetMessageUtil;
+import com.example.wifichat.constant.NetMessageUtil;
 
 import java.io.*;
 import java.net.Socket;

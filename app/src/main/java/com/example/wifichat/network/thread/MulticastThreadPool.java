@@ -1,8 +1,8 @@
-package com.example.wifichat.thread;
+package com.example.wifichat.network.thread;
 
-import com.example.wifichat.multicast.MulticastReceiver;
-import com.example.wifichat.multicast.MulticastSender;
-import com.example.wifichat.consts.NetMessageUtil;
+import com.example.wifichat.network.multicast.MulticastReceiver;
+import com.example.wifichat.network.multicast.MulticastSender;
+import com.example.wifichat.constant.NetMessageUtil;
 import com.example.wifichat.util.GeneralUtil;
 
 import java.util.Map;

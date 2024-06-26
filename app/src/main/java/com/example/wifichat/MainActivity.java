@@ -177,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
         if (fileContent != null) {
             System.out.println("File Content: " + fileContent);
         }
-
     }
 
     private void writeFileInternalStorage(String fileName, String content) {

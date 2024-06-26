@@ -1,8 +1,8 @@
-package com.example.wifichat.thread;
+package com.example.wifichat.network.thread;
 
 
-import com.example.wifichat.network.Client;
-import com.example.wifichat.network.Server;
+import com.example.wifichat.network.socket.Client;
+import com.example.wifichat.network.socket.Server;
 
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
