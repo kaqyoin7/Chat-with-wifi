@@ -53,7 +53,7 @@ public class MulticastReceiver {
                 String message = new String(packet.getData(), 0, packet.getLength());
 
                 //msgParsed: ip-port-isOnline
-                Map<String,String> msgParsed = GeneralUtil.parseMessage(message);
+                Map<String,String> msgParsed = GeneralUtil.parseMessageUserInfo(message);
 
                 //回调
                 callback.onMessageReceived(msgParsed);

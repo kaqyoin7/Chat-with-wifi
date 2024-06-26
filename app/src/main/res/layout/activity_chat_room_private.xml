@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChatRoom">
+    tools:context=".chatroom.ChatRoomGroup">
+
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar_chat_room"
+        android:id="@+id/toolbar_chat_room_private"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:layout_constraintEnd_toEndOf="parent"
@@ -14,12 +15,11 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
-        android:id="@+id/scrollView"
+        android:id="@+id/scrollView_private"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:layout_below="@+id/toolbar_chat_room"
+        android:layout_below="@+id/toolbar_chat_room_private"
         >
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,7 +29,7 @@
             <TextView
                 android:layout_marginTop="10px"
                 android:layout_marginBottom="10px"
-                android:id="@+id/textView"
+                android:id="@+id/textView_private"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="25dp" />
@@ -37,22 +37,21 @@
     </ScrollView>
 
     <Button
-        android:id="@+id/btn_send"
+        android:id="@+id/btn_send_private"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/scrollView"
-
+        android:layout_below="@id/scrollView_private"
         android:text="Button" />
 
     <EditText
-        android:id="@+id/msg_input"
+        android:id="@+id/msg_input_private"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="text"
         android:hint="what you wanna say"
-        android:layout_toLeftOf="@+id/btn_send"
-        android:layout_below="@id/scrollView"
+        android:layout_toLeftOf="@+id/btn_send_private"
+        android:layout_below="@id/scrollView_private"
         />
 </RelativeLayout>

@@ -9,6 +9,5 @@ public interface LocalStorageService {
     void appendFileInternalStorage(String fileName, String content);
     //覆写文件
     void overwriteFileInternalStorage(String fileName, String content);
-
-
+    String getFilesPath();
 }

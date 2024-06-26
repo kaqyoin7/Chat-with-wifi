@@ -1,11 +1,18 @@
 package com.example.wifichat.network.socket;
 
+import com.example.wifichat.MainActivity;
+import com.example.wifichat.api.ChatRecordsApi;
+import com.example.wifichat.api.FriendsApi;
 import com.example.wifichat.constant.NetMessageUtil;
+import com.example.wifichat.service.LocalStorageService;
+import com.example.wifichat.service.impl.LocalStorageServiceImpl;
+import com.example.wifichat.util.ContextHolderUtil;
 import com.example.wifichat.util.GeneralUtil;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -52,7 +59,9 @@ public class Server {
         private Socket clientSocket;
         private PrintWriter out;
         private BufferedReader in;
-
+//        private LocalStorageService localStorageService = LocalStorageServiceImpl.getInstance(ContextHolderUtil.getContext());
+        private ChatRecordsApi chatRecordsApi = new ChatRecordsApi(ContextHolderUtil.getContext());
+        private FriendsApi friendsApi = new FriendsApi(ContextHolderUtil.getContext());
         private Logger logger = Logger.getLogger("ClientHandler");
         public ClientHandler(Socket socket) {
             this.clientSocket = socket;
@@ -70,20 +79,22 @@ public class Server {
                 //Keep thread
                 while (clientMessage != null) {
                     System.out.println("Received from client: " + clientMessage);
+                    //收到上线回复
                     if (GeneralUtil.getIdentifier(clientMessage).equals(NetMessageUtil.SIG_ONLINE)) {
                         logger.info("Received online Message");
                         out.println("Now I know you are online!");
-
                         // FIXME: 更新用户状态，使用TOAST通知xxx上线，同时设置UI为在线状态
+                        //接收消息
+                    } else{
+                        Map<String, String> msgParsed = GeneralUtil.parseMessageUserInfo(clientMessage);
+                        //本地存储接收消息
+                        chatRecordsApi.appendChatRecord(msgParsed.get(NetMessageUtil.USER_ID),msgParsed.get(NetMessageUtil.IS_ONLINE));
                     }
-                    // 继续读取下一个消息
                     clientMessage = in.readLine();
                 }
 
-
             } catch (IOException e) {
                 //处理客户端断开连接异常
-                //FIXME: 尝试在这里处理下线逻辑
                 if (e instanceof java.net.SocketException && "Connection reset".equals(e.getMessage())) {
                     logger.warning("Client connection reset: " + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
                 } else {
@@ -94,6 +105,11 @@ public class Server {
                     if (in != null) in.close();
                     if (out != null) out.close();
                     if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
+
+                    //TODO 下线逻辑
+                    Map<String,String> friendInfo = friendsApi.getFriendInfoByIp(String.valueOf(clientSocket.getInetAddress()));
+//                    MainActivity.socketMap.remove(friendInfo.get(NetMessageUtil.USER_ID));
+                    MainActivity.removeSocketMapChangeListener(friendInfo.get(NetMessageUtil.USER_ID));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -101,7 +117,6 @@ public class Server {
         }
     }
 
-    //FIXME: 尝试在这里处理下线逻辑
     public void stopServer() {
         try {
             if (serverSocket != null && !serverSocket.isClosed()) {
