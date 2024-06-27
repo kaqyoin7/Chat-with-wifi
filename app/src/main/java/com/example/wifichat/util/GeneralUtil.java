@@ -90,7 +90,7 @@ public class GeneralUtil {
 
 
     /**
-     * 消息格式：ip-port-msg_content
+     * 消息格式：ip-port-user_id-user_name-msg_content
      * @param message
      * @return
      */
@@ -134,9 +134,8 @@ public class GeneralUtil {
         lock.lock();
         try {
             long currentTimestamp = System.currentTimeMillis();
-            // 如果当前时间戳与上次生成的时间戳相同，需要在时间戳后面加上一个随机数，保证唯一性
             if (currentTimestamp == lastTimestamp) {
-                currentTimestamp += 1; // 这里可以根据具体需求进行调整
+                currentTimestamp += 1;
             }
             lastTimestamp = currentTimestamp;
             return String.valueOf(currentTimestamp);

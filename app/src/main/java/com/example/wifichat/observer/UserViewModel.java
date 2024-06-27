@@ -11,6 +11,10 @@ import java.util.ArrayList;
 public class UserViewModel extends ViewModel {
     private final MutableLiveData<ArrayList<User>> users;
 
+    public UserViewModel() {
+        this.users = new MutableLiveData<>(new ArrayList<>());
+    }
+
     public UserViewModel(MutableLiveData<ArrayList<User>> users) {
         this.users = new MutableLiveData<>(new ArrayList<>());
     }

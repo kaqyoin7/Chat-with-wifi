@@ -40,7 +40,6 @@ public class MulticastSender {
             String userName = localStorageService.readFileInternalStorage(NetMessageUtil.USER_NAME);
             String userID = localStorageService.readFileInternalStorage(NetMessageUtil.USER_ID);
 
-//            String messageSocket = localIp + "-" + socket.getLocalPort()+ "-" + message;
             String messageSocket = localIp + "-" + socket.getLocalPort()+ "-" + userID + "-" + userName + "-" + message;
 
             // 将消息转换为字节数组
@@ -48,7 +47,6 @@ public class MulticastSender {
             DatagramPacket packet = new DatagramPacket(msg, msg.length, group,PORT);
             //发送数据包到多播组
             socket.send(packet);
-//            logger.info("message send success");
 
             //关闭Socket
             socket.close();

@@ -40,8 +40,6 @@ public class UserApi {
             // 重新生成 userId 和 userName 文件
             String newUserId = GeneralUtil.generateUserId();
             localStorageService.overwriteFileInternalStorage(USER_NAME,userName);
-            //TODO: ^作为读friend_list时的分割符
-//            localStorageService.overwriteFileInternalStorage(USER_ID,newUserId + "^");
             localStorageService.overwriteFileInternalStorage(USER_ID,newUserId);
 
             userInfo.put(USER_NAME, userName);

@@ -59,7 +59,6 @@ public class Server {
         private Socket clientSocket;
         private PrintWriter out;
         private BufferedReader in;
-//        private LocalStorageService localStorageService = LocalStorageServiceImpl.getInstance(ContextHolderUtil.getContext());
         private ChatRecordsApi chatRecordsApi = new ChatRecordsApi(ContextHolderUtil.getContext());
         private FriendsApi friendsApi = new FriendsApi(ContextHolderUtil.getContext());
         private Logger logger = Logger.getLogger("ClientHandler");

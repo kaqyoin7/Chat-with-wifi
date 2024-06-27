@@ -26,7 +26,6 @@ import java.util.Map;
 public class SocketThread {
 
     private static Socket socket;
-    private static LocalStorageService localStorageService = LocalStorageServiceImpl.getInstance(ContextHolderUtil.getContext());
     private static ChatRecordsApi chatRecordsApi = new ChatRecordsApi(ContextHolderUtil.getContext());
     private static FriendsApi friendsApi = new FriendsApi(ContextHolderUtil.getContext());
     public static void startServer(int port) {
@@ -44,13 +43,11 @@ public class SocketThread {
     public static void startClient(String userId, String ipAddress, int port) {
         new Thread(() -> {
             Client client = new Client();
-//            client.connectToServer(ipAddress, 8088);
             socket = client.connectToServer(ipAddress, port);
             if(socket == null) {
                 System.err.println("Failed to connect to server at " + ipAddress + ":" + port);
             }
             //存储socket连接
-//            MainActivity.socketMap.put(userId,socket);
             MainActivity.addToSocketMap(userId,socket);
         }).start();
     }

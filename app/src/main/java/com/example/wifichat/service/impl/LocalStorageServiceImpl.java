@@ -19,7 +19,7 @@ public class LocalStorageServiceImpl implements LocalStorageService {
         this.context = context.getApplicationContext();
     }
 
-    //单例模式
+    //单例
     public static synchronized LocalStorageServiceImpl getInstance(Context context) {
         if (instance == null) {
             instance = new LocalStorageServiceImpl(context);

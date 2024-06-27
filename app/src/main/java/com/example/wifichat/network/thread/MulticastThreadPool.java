@@ -108,8 +108,5 @@ public class MulticastThreadPool {
             localStorageService.appendFileInternalStorage(NetMessageUtil.FRIEND_LIST,friendIp + "!-!" + friendId + "!@!" + friendName + "!~!");
         }
 
-        //FIXME 尝试补充若检测到同ID，IP不同的用户上线，更新IP----应该需要用到getFriendList()
-
-
     }
 }

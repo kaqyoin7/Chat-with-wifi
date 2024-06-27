@@ -108,14 +108,13 @@ public class MainActivity extends AppCompatActivity {
             public void onSocketMapChanged(Map<String, Socket> socketMap) {
                 System.out.println("socketMap 发生变化：" + socketMap);
 
-                //FIXME 看看这样做行不行？？？？？？？？？？？？？？？？能不能触发user的监听重新更新recyclerView
-                // 比较局限的是如果可行则只有上线可以更新，下线无法更新
                 initializeData();
             }
         });
 
-        //FIXME 监听数据
-        initializeData();
+        if (friendsApi.getFriendsIdList()!= null){
+            initializeData();
+        }
 
 
         add_room = (Button) findViewById(R.id.btn_add_room);
@@ -134,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
         groupChatEventHandler();
 
+        onLineSimulation();
     }
 
     // 注册监听器方法
@@ -157,7 +157,6 @@ public class MainActivity extends AppCompatActivity {
 
     //设备上线模拟
     private static void onLineSimulation() {
-        //submitReceiverTask中要处理connectServer逻辑，先启动server
         //固定server启动端口
         SocketThread.startServer(NetMessageUtil.SERVER_PORT);
         try {
@@ -170,17 +169,6 @@ public class MainActivity extends AppCompatActivity {
 
         //上线通知
         MulticastThreadPool.submitSenderTask(new MulticastSender(), NetMessageUtil.SIG_ONLINE);
-        Scanner scanner = new Scanner(System.in);
-
-
-        String msg = "hello Multicast!";
-        while (msg.equals("exit") == false){
-            msg = scanner.nextLine();
-            System.out.println("msg: "+msg);
-//            SocketThread.startClient(SERVER_IP_ADDRESS, NetMessageUtil.SERVER_PORT);
-
-//            SocketThread.sendToServer(msg);
-        }
     }
 
     private void groupChatEventHandler() {
@@ -214,8 +202,6 @@ public class MainActivity extends AppCompatActivity {
                 list_of_rooms.addAll(set);
 
                 arrayAdapter.notifyDataSetChanged();
-
-//                Log.i(TAG,"DataChanged!!!");
             }
 
             @Override
@@ -238,6 +224,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeData() {
        List<Map<String,String>> friendsInfo = friendsApi.getFriendsIdList();
+       if (friendsInfo == null) {
+           return;
+       }
+
         TypedArray userImageResources = getResources().obtainTypedArray(R.array.user_images);
        usersData.clear();
 
@@ -247,9 +237,15 @@ public class MainActivity extends AppCompatActivity {
                     , userImageResources.getResourceId((int) (Math.random() * userImageResources.length()), -1)
                     ,NetMessageUtil.SIG_ONLINE);
 
-            usersData.add(user);
-        }
-        userViewModel.setUsers(usersData);
+        usersData.add(user);
+    }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                userViewModel.setUsers(usersData);
+            }
+        });}
 
     }
 

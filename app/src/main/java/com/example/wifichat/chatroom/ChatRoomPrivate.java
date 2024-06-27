@@ -76,9 +76,7 @@ public class ChatRoomPrivate extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //处理返回按钮事件，返回主屏幕
         if (item.getItemId() == android.R.id.home){
-            //关闭当前Activity，返回上一个Activity
             finish();
         }
         return super.onOptionsItemSelected(item);
